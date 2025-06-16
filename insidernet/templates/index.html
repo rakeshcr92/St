@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>InsiderNet Demo</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2em; }
+      table { border-collapse: collapse; width: 50%; }
+      th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+      th { background-color: #f5f5f5; }
+    </style>
+  </head>
+  <body>
+    <h1>InsiderNet Predictions</h1>
+    <table>
+      <tr>
+        <th>Ticker</th><th>Confidence</th>
+      </tr>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.ticker }}</td><td>{{ '%.2f'|format(row.score) }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>

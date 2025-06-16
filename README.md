@@ -24,6 +24,15 @@ Run the demo pipeline:
 python -m insidernet.pipeline
 ```
 
+Launch the demo web app:
+
+```bash
+python -m insidernet.webapp
+```
+
+This starts a Flask server at `http://localhost:5000` showing prediction
+results from the sample data set.
+
 The demo uses stratified train/test splitting. If the sample is too small,
 the pipeline trains on the full dataset to avoid fitting errors.
 

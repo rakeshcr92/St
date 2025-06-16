@@ -12,44 +12,42 @@ from .datasources import (
     load_local_reddit,
 )
 from .features import compute_attention_vector
-from .models import PriceDirectionModel, train_test_data
+from .models import PriceDirectionModel
 
 
-def run() -> None:
-    """Execute a minimal data flow using sample local data."""
+def get_predictions() -> pd.DataFrame:
+    """Return prediction scores for the sample data."""
     posts = load_local_reddit("data/sample_reddit.json")
 
-    by_ticker = {}
+    by_ticker: dict[str, list[dict]] = {}
     for p in posts:
         by_ticker.setdefault(p.ticker, []).append(p.__dict__)
 
     rows = []
-    labels = []
     tickers = []
+    labels = []
     for ticker, plist in by_ticker.items():
         feats = compute_attention_vector(plist)
         rows.append(feats)
-        labels.append(1 if ticker == "AAPL" else 0)
         tickers.append(ticker)
+        labels.append(1 if ticker == "AAPL" else 0)
 
     df = pd.DataFrame(rows)
     df["ticker"] = tickers
     df["label"] = labels
 
-    # If the sample size is tiny, train on the entire dataset
-    if len(df) < 4:
-        X = df.drop(columns=["ticker", "label"])
-        y = df["label"]
-        model = PriceDirectionModel(method="logit")
-        model.fit(X, y)
-        preds = model.predict_proba(X)
-    else:
-        X_train, X_test, y_train, _ = train_test_data(df.drop(columns=["ticker"]), "label")
-        model = PriceDirectionModel(method="logit")
-        model.fit(X_train, y_train)
-        preds = model.predict_proba(X_test)
+    X = df.drop(columns=["ticker", "label"])
+    y = df["label"]
+    model = PriceDirectionModel(method="logit")
+    model.fit(X, y)
+    scores = model.predict_proba(X)
+    return pd.DataFrame({"ticker": tickers, "score": scores})
 
-    print("Predictions:", preds.tolist())
+
+def run() -> None:
+    """Execute a minimal data flow using sample local data."""
+    df = get_predictions()
+    print("Predictions:", df["score"].tolist())
 
 
 if __name__ == "__main__":
