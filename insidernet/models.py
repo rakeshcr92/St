@@ -37,4 +37,7 @@ def train_test_data(
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     X = data.drop(columns=[label_column])
     y = data[label_column]
-    return train_test_split(X, y, test_size=test_size, random_state=42)
+    stratify = y if y.nunique() > 1 else None
+    return train_test_split(
+        X, y, test_size=test_size, random_state=42, stratify=stratify
+    )

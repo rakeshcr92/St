@@ -24,6 +24,9 @@ Run the demo pipeline:
 python -m insidernet.pipeline
 ```
 
+The demo uses stratified train/test splitting. If the sample is too small,
+the pipeline trains on the full dataset to avoid fitting errors.
+
 ## Requirements
 
 Install dependencies before running the pipeline or tests:

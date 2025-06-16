@@ -36,11 +36,19 @@ def run() -> None:
     df["ticker"] = tickers
     df["label"] = labels
 
-    # drop non-numeric ticker column when training
-    X_train, X_test, y_train, y_test = train_test_data(df.drop(columns=["ticker"]), "label")
-    model = PriceDirectionModel(method="logit")
-    model.fit(X_train, y_train)
-    preds = model.predict_proba(X_test)
+    # If the sample size is tiny, train on the entire dataset
+    if len(df) < 4:
+        X = df.drop(columns=["ticker", "label"])
+        y = df["label"]
+        model = PriceDirectionModel(method="logit")
+        model.fit(X, y)
+        preds = model.predict_proba(X)
+    else:
+        X_train, X_test, y_train, _ = train_test_data(df.drop(columns=["ticker"]), "label")
+        model = PriceDirectionModel(method="logit")
+        model.fit(X_train, y_train)
+        preds = model.predict_proba(X_test)
+
     print("Predictions:", preds.tolist())
 
 
