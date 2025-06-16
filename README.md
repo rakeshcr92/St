@@ -9,5 +9,19 @@ InsiderNet v2 is a human-behavior-driven market signal engine. It analyzes publi
 - **Prediction Models**: RandomForest, XGBoost, Logistic Regression and optional sequence models.
 - **Dashboard**: visualize predictions, rank tickers by anomaly strength and confidence.
 
-This repository contains the initial project structure and placeholder modules.
+This repository contains a lightweight prototype. The `insidernet` package
+includes:
+
+- basic data source connectors (with a local JSON loader for demo purposes)
+- feature engineering functions for attention vectors
+- simple ML models using scikit-learn
+- a pipeline script demonstrating end-to-end training on the sample data in
+  `data/sample_reddit.json`
+
+Run the demo pipeline:
+
+```bash
+python -m insidernet.pipeline
+```
+
 

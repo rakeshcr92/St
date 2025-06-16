@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, List
+import json
+from pathlib import Path
 
 
 @dataclass
@@ -78,3 +80,10 @@ class PriceClient:
         """Return historical prices for label generation."""
         # TODO: implement price retrieval
         return []
+
+
+def load_local_reddit(path: str) -> List[RedditPost]:
+    """Load reddit posts from a local JSON file for offline experiments."""
+    data = json.loads(Path(path).read_text())
+    posts = [RedditPost(**item) for item in data]
+    return posts

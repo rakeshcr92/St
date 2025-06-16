@@ -1,0 +1,5 @@
+[
+  {"ticker": "AAPL", "text": "Apple is launching new iPhones", "author": "user1", "created": 1609459200},
+  {"ticker": "AAPL", "text": "I think $AAPL will skyrocket", "author": "user2", "created": 1609462800},
+  {"ticker": "TSLA", "text": "Elon said something about Tesla", "author": "user3", "created": 1609466400}
+]
