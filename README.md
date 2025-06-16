@@ -48,8 +48,9 @@ Predictions are stored in ``prediction_history.json``. The web interface lists
 recent predictions so you can compare results across runs.
 
 The pipeline uses stratified train/test splitting. If only a few posts are
-available for a ticker, it trains on all available data to avoid fitting
-errors.
+available for a ticker, it trains on all available data. When the resulting
+labels contain only a single class the model automatically falls back to a
+naïve probability-based approach so training never fails.
 
 ## Requirements
 

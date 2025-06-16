@@ -17,3 +17,13 @@ def test_fallback(monkeypatch):
     preds = model.predict([{"a": 3}])
     assert preds == [1]
 
+
+def test_single_class_fallback():
+    """When only one class is present the model should use naive mode."""
+    model = PriceDirectionModel(method="logit")
+    # only class 0 present
+    model.fit([{"a": 1}, {"a": 2}], [0, 0])
+    assert model.method == "naive"
+    preds = model.predict([{"a": 3}])
+    assert preds == [0]
+

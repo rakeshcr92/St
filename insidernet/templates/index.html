@@ -5,9 +5,11 @@
     <title>InsiderNet Demo</title>
     <style>
       body { font-family: Arial, sans-serif; margin: 2em; }
-      table { border-collapse: collapse; width: 50%; }
+      table { border-collapse: collapse; width: 80%; margin-bottom: 2em; }
       th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
       th { background-color: #f5f5f5; }
+      .up { color: green; }
+      .down { color: red; }
     </style>
   </head>
   <body>
@@ -24,7 +26,7 @@
       {% for row in rows %}
       <tr>
         <td>{{ row.ticker }}</td>
-        <td>{{ row.direction }}</td>
+        <td><span class="{{ 'up' if row.direction == '\u2B06' else 'down' }}">{{ row.direction }}</span></td>
         <td>{{ '%.2f'|format(row.confidence) }}</td>
         <td>{{ '%.2f'|format(row.anomaly) }}</td>
         <td>{{ '%.2f'|format(row.volatility) }}</td>
@@ -48,7 +50,7 @@
       <tr>
         <td>{{ row.timestamp }}</td>
         <td>{{ row.ticker }}</td>
-        <td>{{ row.direction }}</td>
+        <td><span class="{{ 'up' if row.direction == '\u2B06' else 'down' }}">{{ row.direction }}</span></td>
         <td>{{ '%.2f'|format(row.confidence) }}</td>
         <td>{{ '%.2f'|format(row.anomaly) }}</td>
         <td>{{ '%.2f'|format(row.volatility) }}</td>

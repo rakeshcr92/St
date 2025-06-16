@@ -46,15 +46,16 @@ class PriceDirectionModel:
     # ------------------------------------------------------------------
     def fit(self, X: Iterable[dict], y: Iterable[int]) -> None:
         self._features = list(X[0].keys()) if X else []
+        y_list = list(y)
         self._setup_model()
 
-        if self.method == "naive" or not X:
-            y_list = list(y)
+        # fall back to naive model when data is missing or only a single class
+        if self.method == "naive" or not X or len(set(y_list)) < 2:
             self.prob = sum(y_list) / float(len(y_list)) if y_list else 0.5
             return
 
         X_mat = self._to_matrix(X)
-        self.model.fit(X_mat, list(y))
+        self.model.fit(X_mat, y_list)
 
     def predict(self, X: Iterable[dict]) -> List[int]:
         if self.method == "naive" or self.model is None:
