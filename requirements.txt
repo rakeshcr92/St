@@ -4,3 +4,6 @@ scikit-learn
 xgboost
 matplotlib
 flask
+requests
+praw
+pytrends

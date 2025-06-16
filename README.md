@@ -9,18 +9,21 @@ InsiderNet v2 is a human-behavior-driven market signal engine. It analyzes publi
 - **Prediction Models**: RandomForest, XGBoost, Logistic Regression and optional sequence models.
 - **Dashboard**: visualize predictions, rank tickers by anomaly strength and confidence.
 
-This repository contains a lightweight prototype. The `insidernet` package
-includes:
+This repository now fetches live data. The `insidernet` package includes:
 
-- basic data source connectors (with a local JSON loader for demo purposes)
-- feature engineering functions for attention vectors
-- simple ML models using scikit-learn
-- a pipeline script demonstrating end-to-end training on the sample data in
-  `data/sample_reddit.json`
+- data source connectors for Reddit, X/Twitter, the SEC EDGAR system and
+  Google Trends (API credentials required)
+- feature engineering utilities for attention vectors
+- simple scikit-learn models
+- a pipeline script that trains on freshly downloaded posts
 
-Run the demo pipeline:
+Run the pipeline with your API credentials exported as environment variables:
 
 ```bash
+export REDDIT_CLIENT_ID=...             # required
+export REDDIT_CLIENT_SECRET=...         # required
+export TWITTER_BEARER_TOKEN=...         # optional
+export PRICE_API_KEY=...                # required for labels
 python -m insidernet.pipeline
 ```
 
@@ -31,10 +34,11 @@ python -m insidernet.webapp
 ```
 
 This starts a Flask server at `http://localhost:5000` showing prediction
-results from the sample data set.
+results from the latest fetched data.
 
-The demo uses stratified train/test splitting. If the sample is too small,
-the pipeline trains on the full dataset to avoid fitting errors.
+The pipeline uses stratified train/test splitting. If only a few posts are
+available for a ticker, it trains on all available data to avoid fitting
+errors.
 
 ## Requirements
 
