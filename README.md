@@ -24,4 +24,14 @@ Run the demo pipeline:
 python -m insidernet.pipeline
 ```
 
+## Requirements
+
+Install dependencies before running the pipeline or tests:
+
+```bash
+pip install -r requirements.txt
+```
+
+The demo relies on optional packages such as pandas and numpy.
+
 

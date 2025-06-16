@@ -24,15 +24,20 @@ def run() -> None:
         by_ticker.setdefault(p.ticker, []).append(p.__dict__)
 
     rows = []
+    labels = []
+    tickers = []
     for ticker, plist in by_ticker.items():
         feats = compute_attention_vector(plist)
-        feats["ticker"] = ticker
         rows.append(feats)
+        labels.append(1 if ticker == "AAPL" else 0)
+        tickers.append(ticker)
 
     df = pd.DataFrame(rows)
-    df["label"] = [1 if t == "AAPL" else 0 for t in df["ticker"]]
+    df["ticker"] = tickers
+    df["label"] = labels
 
-    X_train, X_test, y_train, y_test = train_test_data(df, "label")
+    # drop non-numeric ticker column when training
+    X_train, X_test, y_train, y_test = train_test_data(df.drop(columns=["ticker"]), "label")
     model = PriceDirectionModel(method="logit")
     model.fit(X_train, y_train)
     preds = model.predict_proba(X_test)
