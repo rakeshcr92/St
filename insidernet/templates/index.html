@@ -14,11 +14,19 @@
     <h1>InsiderNet Predictions</h1>
     <table>
       <tr>
-        <th>Ticker</th><th>Confidence</th>
+        <th>Ticker</th>
+        <th>Direction</th>
+        <th>Confidence</th>
+        <th>Anomaly</th>
+        <th>Volatility</th>
       </tr>
       {% for row in rows %}
       <tr>
-        <td>{{ row.ticker }}</td><td>{{ '%.2f'|format(row.score) }}</td>
+        <td>{{ row.ticker }}</td>
+        <td>{{ row.direction }}</td>
+        <td>{{ '%.2f'|format(row.confidence) }}</td>
+        <td>{{ '%.2f'|format(row.anomaly) }}</td>
+        <td>{{ '%.2f'|format(row.volatility) }}</td>
       </tr>
       {% endfor %}
     </table>

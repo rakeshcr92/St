@@ -7,5 +7,12 @@ SAMPLE = [
 
 def test_attention_vector_keys():
     vec = compute_attention_vector(SAMPLE)
-    assert set(vec.keys()) == {"post_count", "avg_comment_length", "sentiment", "diversity", "velocity"}
+    assert set(vec.keys()) == {
+        "post_count",
+        "avg_comment_length",
+        "sentiment",
+        "diversity",
+        "velocity",
+        "entity_count",
+    }
     assert vec["post_count"] == 2

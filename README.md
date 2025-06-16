@@ -1,6 +1,9 @@
 # InsiderNet v2
 
-InsiderNet v2 is a human-behavior-driven market signal engine. It analyzes public attention signals from a variety of sources to detect abnormal patterns prior to market movements. The system focuses on modeling human behavior rather than price history.
+InsiderNet v2 is a human-behavior-driven market signal engine. It analyzes public
+attention signals from a variety of sources to detect abnormal patterns prior
+to market movements. The system focuses on modeling human behavior rather than
+price history.
 
 ## Features
 - **Data Sources**: Reddit, X/Twitter, SEC EDGAR filings, Google Trends, historical stock data for labels only.
@@ -36,7 +39,9 @@ python -m insidernet.webapp
 ```
 
 This starts a Flask server at `http://localhost:5000` showing prediction
-results from the latest fetched data.
+results from the latest fetched data. The page lists the five tickers with the
+highest anomaly scores along with the predicted direction (up or down), model
+confidence and an estimated volatility metric.
 
 The pipeline uses stratified train/test splitting. If only a few posts are
 available for a ticker, it trains on all available data to avoid fitting

@@ -43,4 +43,10 @@ def test_get_predictions(monkeypatch):
     monkeypatch.setattr(datasources.PriceClient, "historical_prices", _stub_prices)
     df = get_predictions()
     assert not df.empty
-    assert set(df.columns) == {"ticker", "score"}
+    assert set(df.columns) == {
+        "ticker",
+        "direction",
+        "confidence",
+        "volatility",
+        "anomaly",
+    }

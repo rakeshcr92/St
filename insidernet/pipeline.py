@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import os
+import json
 from datetime import datetime
+from pathlib import Path
 
 
 class SimpleDataFrame:
@@ -51,8 +53,26 @@ from .datasources import (
     TwitterClient,
     PriceClient,
 )
-from .features import compute_attention_vector
+from .features import compute_attention_vector, anomaly_score
 from .models import PriceDirectionModel
+
+HISTORY_FILE = Path("post_history.json")
+
+
+def _load_history() -> dict[str, list[int]]:
+    if HISTORY_FILE.exists():
+        try:
+            return json.loads(HISTORY_FILE.read_text())
+        except Exception:
+            return {}
+    return {}
+
+
+def _save_history(history: dict[str, list[int]]) -> None:
+    try:
+        HISTORY_FILE.write_text(json.dumps(history))
+    except Exception:
+        pass
 
 
 def _gather_reddit_posts(subreddits: list[str], limit: int = 50):
@@ -121,14 +141,21 @@ def get_predictions() -> SimpleDataFrame:
 
     labels = _price_labels(tickers)
 
+    history = _load_history()
     rows = []
     y = []
     valid_tickers = []
     for ticker, plist in by_ticker.items():
         feats = compute_attention_vector(plist)
+        hist_vals = history.get(ticker, [])
+        feats["anomaly"] = anomaly_score(feats["post_count"], hist_vals)
+        history.setdefault(ticker, []).append(feats["post_count"])
+        history[ticker] = history[ticker][-30:]
         rows.append(feats)
         valid_tickers.append(ticker)
         y.append(labels.get(ticker, 0))
+
+    _save_history(history)
 
     df = SimpleDataFrame([dict(row) for row in rows])
     df["ticker"] = valid_tickers
@@ -136,17 +163,34 @@ def get_predictions() -> SimpleDataFrame:
     X = df.drop(["ticker", "label"])
     model = PriceDirectionModel(method="logit")
     model.fit(X._records, df["label"])
-    scores = model.predict_proba(X._records)
-    result = SimpleDataFrame([
-        {"ticker": t, "score": s} for t, s in zip(valid_tickers, scores)
-    ])
-    return result
+    probs = model.predict_proba(X._records)
+    preds = model.predict(X._records)
+    result_rows = []
+    for t, p, pr, f in zip(valid_tickers, probs, preds, rows):
+        vol = min(1.0, f.get("velocity", 0.0) / 10.0)
+        result_rows.append(
+            {
+                "ticker": t,
+                "direction": "\u2B06" if pr else "\u2B07",
+                "confidence": round(p, 2),
+                "volatility": vol,
+                "anomaly": round(f.get("anomaly", 0.0), 2),
+            }
+        )
+
+    result_rows.sort(key=lambda r: r["anomaly"], reverse=True)
+    result_rows = result_rows[:5]
+    return SimpleDataFrame(result_rows)
 
 
 def run() -> None:
     """Execute a minimal data flow using live data sources."""
     df = get_predictions()
-    print("Predictions:", df["score"])
+    for row in df.to_dict(orient="records"):
+        print(
+            f"{row['ticker']}: {row['direction']} conf={row['confidence']} "
+            f"anom={row['anomaly']} vol={row['volatility']:.2f}"
+        )
 
 
 if __name__ == "__main__":
