@@ -17,7 +17,8 @@ This repository now fetches live data. The `insidernet` package includes:
 - data source connectors for Reddit, X/Twitter, the SEC EDGAR system and
   Google Trends (API credentials required)
 - feature engineering utilities for attention vectors
-- lightweight models implemented without heavy dependencies
+- a flexible modelling layer that falls back to a naive baseline when
+  ``scikit-learn`` is unavailable
 - a pipeline script that trains on freshly downloaded posts
 
 Run the pipeline with your API credentials. The application automatically loads
@@ -43,16 +44,23 @@ results from the latest fetched data. The page lists the five tickers with the
 highest anomaly scores along with the predicted direction (up or down), model
 confidence and an estimated volatility metric.
 
+Predictions are stored in ``prediction_history.json``. The web interface lists
+recent predictions so you can compare results across runs.
+
 The pipeline uses stratified train/test splitting. If only a few posts are
 available for a ticker, it trains on all available data to avoid fitting
 errors.
 
 ## Requirements
 
-Install dependencies before running the pipeline or tests:
+Install dependencies before running the pipeline or tests. ``scikit-learn`` is
+optional; when installed the model will train a real logistic regression
+classifier, otherwise a simple probabilistic baseline is used.
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt  # core requirements
+# install optional ML extras for better models
+pip install -r requirements.txt[ml]
 ```
 
 The demo relies on `python-dotenv` for loading environment variables. No heavy

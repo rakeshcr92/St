@@ -19,6 +19,7 @@
         <th>Confidence</th>
         <th>Anomaly</th>
         <th>Volatility</th>
+        <th>Actual</th>
       </tr>
       {% for row in rows %}
       <tr>
@@ -27,6 +28,31 @@
         <td>{{ '%.2f'|format(row.confidence) }}</td>
         <td>{{ '%.2f'|format(row.anomaly) }}</td>
         <td>{{ '%.2f'|format(row.volatility) }}</td>
+        <td>{{ row.actual }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <h2>Past Predictions</h2>
+    <table>
+      <tr>
+        <th>Timestamp</th>
+        <th>Ticker</th>
+        <th>Direction</th>
+        <th>Confidence</th>
+        <th>Anomaly</th>
+        <th>Volatility</th>
+        <th>Actual</th>
+      </tr>
+      {% for row in history %}
+      <tr>
+        <td>{{ row.timestamp }}</td>
+        <td>{{ row.ticker }}</td>
+        <td>{{ row.direction }}</td>
+        <td>{{ '%.2f'|format(row.confidence) }}</td>
+        <td>{{ '%.2f'|format(row.anomaly) }}</td>
+        <td>{{ '%.2f'|format(row.volatility) }}</td>
+        <td>{{ row.actual }}</td>
       </tr>
       {% endfor %}
     </table>

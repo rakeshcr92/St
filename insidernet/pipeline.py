@@ -57,6 +57,7 @@ from .features import compute_attention_vector, anomaly_score
 from .models import PriceDirectionModel
 
 HISTORY_FILE = Path("post_history.json")
+PRED_HISTORY_FILE = Path("prediction_history.json")
 
 
 def _load_history() -> dict[str, list[int]]:
@@ -73,6 +74,35 @@ def _save_history(history: dict[str, list[int]]) -> None:
         HISTORY_FILE.write_text(json.dumps(history))
     except Exception:
         pass
+
+
+def _load_prediction_history() -> list[dict]:
+    if PRED_HISTORY_FILE.exists():
+        try:
+            return json.loads(PRED_HISTORY_FILE.read_text())
+        except Exception:
+            return []
+    return []
+
+
+def _save_prediction_history(rows: list[dict]) -> None:
+    hist = _load_prediction_history()
+    timestamp = datetime.utcnow().isoformat()
+    for r in rows:
+        entry = dict(r)
+        entry["timestamp"] = timestamp
+        hist.append(entry)
+    try:
+        PRED_HISTORY_FILE.write_text(json.dumps(hist[-100:]))
+    except Exception:
+        pass
+
+
+def get_prediction_history(limit: int = 20) -> SimpleDataFrame:
+    """Return the most recent prediction entries."""
+    hist = _load_prediction_history()
+    hist = hist[-limit:]
+    return SimpleDataFrame(hist)
 
 
 def _gather_reddit_posts(subreddits: list[str], limit: int = 50):
@@ -175,11 +205,13 @@ def get_predictions() -> SimpleDataFrame:
                 "confidence": round(p, 2),
                 "volatility": vol,
                 "anomaly": round(f.get("anomaly", 0.0), 2),
+                "actual": labels.get(t, 0),
             }
         )
 
     result_rows.sort(key=lambda r: r["anomaly"], reverse=True)
     result_rows = result_rows[:5]
+    _save_prediction_history(result_rows)
     return SimpleDataFrame(result_rows)
 
 

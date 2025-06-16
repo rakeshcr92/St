@@ -1,4 +1,5 @@
 from insidernet.pipeline import run, get_predictions
+from insidernet import pipeline
 from insidernet import datasources
 from insidernet.datasources import RedditPost
 
@@ -49,4 +50,21 @@ def test_get_predictions(monkeypatch):
         "confidence",
         "volatility",
         "anomaly",
+        "actual",
     }
+
+
+def test_prediction_history(monkeypatch, tmp_path):
+    monkeypatch.setenv("REDDIT_CLIENT_ID", "id")
+    monkeypatch.setenv("REDDIT_CLIENT_SECRET", "secret")
+    monkeypatch.setenv("PRICE_API_KEY", "key")
+    monkeypatch.setenv("TWITTER_BEARER_TOKEN", "token")
+    monkeypatch.setattr(datasources.RedditClient, "fetch_posts", _stub_fetch_posts)
+    monkeypatch.setattr(datasources.TwitterClient, "search", _stub_search)
+    monkeypatch.setattr(datasources.PriceClient, "historical_prices", _stub_prices)
+    monkeypatch.setattr(pipeline, "PRED_HISTORY_FILE", tmp_path / "hist.json")
+
+    get_predictions()
+    hist_df = pipeline.get_prediction_history()
+    assert not hist_df.empty
+
