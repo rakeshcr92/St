@@ -23,6 +23,14 @@ def _stub_prices(self, ticker, days=4):
     return [1.0, 1.5]
 
 
+def _stub_event_proximity(ticker):
+    return 0.0
+
+
+def _stub_trend_score(ticker):
+    return 0.0
+
+
 def test_run(monkeypatch):
     monkeypatch.setenv("REDDIT_CLIENT_ID", "id")
     monkeypatch.setenv("REDDIT_CLIENT_SECRET", "secret")
@@ -31,6 +39,8 @@ def test_run(monkeypatch):
     monkeypatch.setattr(datasources.RedditClient, "fetch_posts", _stub_fetch_posts)
     monkeypatch.setattr(datasources.TwitterClient, "search", _stub_search)
     monkeypatch.setattr(datasources.PriceClient, "historical_prices", _stub_prices)
+    monkeypatch.setattr(pipeline, "_event_proximity", _stub_event_proximity)
+    monkeypatch.setattr(pipeline, "_trend_score", _stub_trend_score)
     run()
 
 
@@ -42,6 +52,8 @@ def test_get_predictions(monkeypatch):
     monkeypatch.setattr(datasources.RedditClient, "fetch_posts", _stub_fetch_posts)
     monkeypatch.setattr(datasources.TwitterClient, "search", _stub_search)
     monkeypatch.setattr(datasources.PriceClient, "historical_prices", _stub_prices)
+    monkeypatch.setattr(pipeline, "_event_proximity", _stub_event_proximity)
+    monkeypatch.setattr(pipeline, "_trend_score", _stub_trend_score)
     df = get_predictions()
     assert not df.empty
     assert set(df.columns) == {
@@ -62,6 +74,8 @@ def test_prediction_history(monkeypatch, tmp_path):
     monkeypatch.setattr(datasources.RedditClient, "fetch_posts", _stub_fetch_posts)
     monkeypatch.setattr(datasources.TwitterClient, "search", _stub_search)
     monkeypatch.setattr(datasources.PriceClient, "historical_prices", _stub_prices)
+    monkeypatch.setattr(pipeline, "_event_proximity", _stub_event_proximity)
+    monkeypatch.setattr(pipeline, "_trend_score", _stub_trend_score)
     monkeypatch.setattr(pipeline, "PRED_HISTORY_FILE", tmp_path / "hist.json")
 
     get_predictions()

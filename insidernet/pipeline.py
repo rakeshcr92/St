@@ -51,6 +51,8 @@ except Exception:
 from .datasources import (
     RedditClient,
     TwitterClient,
+    EdgarClient,
+    GoogleTrendsClient,
     PriceClient,
 )
 from .features import compute_attention_vector, anomaly_score
@@ -155,6 +157,29 @@ def _price_labels(tickers: list[str]) -> dict[str, int]:
     return labels
 
 
+def _event_proximity(ticker: str) -> float:
+    client = EdgarClient()
+    try:
+        filings = client.recent_filings(ticker)
+    except Exception:
+        return 0.0
+    if not filings:
+        return 0.0
+    # simple measure: recent filing exists -> 1.0
+    return 1.0
+
+
+def _trend_score(ticker: str) -> float:
+    client = GoogleTrendsClient()
+    try:
+        series = client.interest_over_time(ticker)
+    except Exception:
+        return 0.0
+    if not series:
+        return 0.0
+    return float(series[-1]) / (sum(series) / len(series)) if series else 0.0
+
+
 def get_predictions() -> SimpleDataFrame:
     """Fetch live data and return prediction scores."""
     reddit_posts = _gather_reddit_posts(["stocks", "wallstreetbets"])
@@ -179,6 +204,8 @@ def get_predictions() -> SimpleDataFrame:
         feats = compute_attention_vector(plist)
         hist_vals = history.get(ticker, [])
         feats["anomaly"] = anomaly_score(feats["post_count"], hist_vals)
+        feats["event"] = _event_proximity(ticker)
+        feats["trend"] = _trend_score(ticker)
         history.setdefault(ticker, []).append(feats["post_count"])
         history[ticker] = history[ticker][-30:]
         rows.append(feats)

@@ -7,7 +7,7 @@ price history.
 
 ## Features
 - **Data Sources**: Reddit, X/Twitter, SEC EDGAR filings, Google Trends, historical stock data for labels only.
-- **Attention Vector Construction**: posts counts, comment length, sentiment, velocity of mentions, named entities, attention diversity and more.
+- **Attention Vector Construction**: posts counts, comment length, sentiment, velocity of mentions, named entities, attention diversity, EDGAR event proximity and Google Trends signals.
 - **Anomaly Detection**: daily abnormality scores using statistical techniques such as z-score or isolation forest.
 - **Prediction Models**: RandomForest, XGBoost, Logistic Regression and optional sequence models.
 - **Dashboard**: visualize predictions, rank tickers by anomaly strength and confidence.

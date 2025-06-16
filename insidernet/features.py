@@ -5,12 +5,22 @@ from typing import List, Dict
 from statistics import mean, pstdev
 import re
 
+try:
+    import spacy  # type: ignore
+    _NLP = spacy.load("en_core_web_sm")
+except Exception:
+    _NLP = None
+
 POSITIVE = {"skyrocket", "buy", "bull", "long"}
 NEGATIVE = {"crash", "sell", "bear", "short"}
 
 
 def _extract_entities(text: str) -> List[str]:
-    """Very naive named entity extractor based on capitalized words."""
+    """Extract named entities from text."""
+    if _NLP is not None:
+        doc = _NLP(text)
+        return [ent.text for ent in doc.ents]
+    # fallback: capitalized words
     return re.findall(r"\b[A-Z][a-zA-Z]{2,}\b", text)
 
 
