@@ -14,7 +14,7 @@ This repository now fetches live data. The `insidernet` package includes:
 - data source connectors for Reddit, X/Twitter, the SEC EDGAR system and
   Google Trends (API credentials required)
 - feature engineering utilities for attention vectors
-- simple scikit-learn models
+- lightweight models implemented without heavy dependencies
 - a pipeline script that trains on freshly downloaded posts
 
 Run the pipeline with your API credentials. The application automatically loads
@@ -50,6 +50,7 @@ Install dependencies before running the pipeline or tests:
 pip install -r requirements.txt
 ```
 
-The demo relies on optional packages such as pandas, numpy and python-dotenv.
+The demo relies on `python-dotenv` for loading environment variables. No heavy
+scientific packages are required.
 
 

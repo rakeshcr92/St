@@ -14,7 +14,6 @@ import re
 import json
 from pathlib import Path
 
-import requests
 
 
 @dataclass
@@ -71,6 +70,10 @@ class TwitterClient:
 
     def search(self, query: str, max_results: int = 100) -> List[dict[str, Any]]:
         """Search recent tweets using the Twitter v2 API."""
+        try:
+            import requests  # type: ignore
+        except ImportError as exc:
+            raise RuntimeError("requests package is required for TwitterClient") from exc
         url = "https://api.twitter.com/2/tweets/search/recent"
         headers = {"Authorization": f"Bearer {self.bearer_token}"}
         params = {
@@ -86,6 +89,10 @@ class TwitterClient:
 
 class EdgarClient:
     def __init__(self, user_agent: str = "InsiderNet") -> None:
+        try:
+            import requests  # type: ignore
+        except ImportError as exc:
+            raise RuntimeError("requests package is required for EdgarClient") from exc
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": user_agent})
 
@@ -123,6 +130,10 @@ class PriceClient:
 
     def historical_prices(self, ticker: str, days: int = 30) -> List[float]:
         """Return historical closing prices for label generation."""
+        try:
+            import requests  # type: ignore
+        except ImportError as exc:
+            raise RuntimeError("requests package is required for PriceClient") from exc
         url = "https://www.alphavantage.co/query"
         params = {
             "function": "TIME_SERIES_DAILY_ADJUSTED",

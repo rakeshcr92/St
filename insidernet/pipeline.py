@@ -3,7 +3,41 @@
 from __future__ import annotations
 
 import os
-import pandas as pd
+from datetime import datetime
+
+
+class SimpleDataFrame:
+    """Minimal DataFrame-like container used in tests."""
+
+    def __init__(self, records: list[dict]):
+        self._records = records
+        self.columns = list(records[0].keys()) if records else []
+
+    @property
+    def empty(self) -> bool:
+        return not self._records
+
+    def __getitem__(self, key: str):
+        return [row.get(key) for row in self._records]
+
+    def __setitem__(self, key: str, values):
+        if len(self._records) != len(values):
+            raise ValueError("length mismatch")
+        for row, val in zip(self._records, values):
+            row[key] = val
+        if key not in self.columns:
+            self.columns.append(key)
+
+    def drop(self, columns: list[str]):
+        result = []
+        for row in self._records:
+            result.append({k: v for k, v in row.items() if k not in columns})
+        return SimpleDataFrame(result)
+
+    def to_dict(self, orient: str = "records"):
+        if orient == "records":
+            return list(self._records)
+        raise ValueError("unsupported orient")
 
 try:
     from dotenv import load_dotenv
@@ -42,7 +76,11 @@ def _gather_twitter_posts(tickers: list[str], max_results: int = 50):
     tw_posts = []
     for tic in tickers:
         for t in client.search(f"${tic}", max_results=max_results):
-            created = pd.to_datetime(t.get("created_at")).timestamp()
+            created_str = t.get("created_at")
+            try:
+                created = datetime.fromisoformat(created_str.replace("Z", "+00:00")).timestamp()
+            except Exception:
+                created = 0.0
             tw_posts.append(
                 {
                     "ticker": tic,
@@ -67,7 +105,7 @@ def _price_labels(tickers: list[str]) -> dict[str, int]:
     return labels
 
 
-def get_predictions() -> pd.DataFrame:
+def get_predictions() -> SimpleDataFrame:
     """Fetch live data and return prediction scores."""
     reddit_posts = _gather_reddit_posts(["stocks", "wallstreetbets"])
     by_ticker: dict[str, list[dict]] = {}
@@ -92,20 +130,23 @@ def get_predictions() -> pd.DataFrame:
         valid_tickers.append(ticker)
         y.append(labels.get(ticker, 0))
 
-    df = pd.DataFrame(rows)
+    df = SimpleDataFrame([dict(row) for row in rows])
     df["ticker"] = valid_tickers
     df["label"] = y
-    X = df.drop(columns=["ticker", "label"])
+    X = df.drop(["ticker", "label"])
     model = PriceDirectionModel(method="logit")
-    model.fit(X, df["label"])
-    scores = model.predict_proba(X)
-    return pd.DataFrame({"ticker": valid_tickers, "score": scores})
+    model.fit(X._records, df["label"])
+    scores = model.predict_proba(X._records)
+    result = SimpleDataFrame([
+        {"ticker": t, "score": s} for t, s in zip(valid_tickers, scores)
+    ])
+    return result
 
 
 def run() -> None:
     """Execute a minimal data flow using live data sources."""
     df = get_predictions()
-    print("Predictions:", df["score"].tolist())
+    print("Predictions:", df["score"])
 
 
 if __name__ == "__main__":

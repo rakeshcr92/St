@@ -2,11 +2,10 @@
 from __future__ import annotations
 
 from typing import List, Dict
+from statistics import mean, pstdev
 
 POSITIVE = {"skyrocket", "buy", "bull", "long"}
 NEGATIVE = {"crash", "sell", "bear", "short"}
-
-import numpy as np
 
 
 def compute_attention_vector(posts: List[dict]) -> Dict[str, float]:
@@ -22,7 +21,7 @@ def compute_attention_vector(posts: List[dict]) -> Dict[str, float]:
 
     post_count = len(posts)
     lengths = [len(p.get("text", "")) for p in posts]
-    avg_length = float(np.mean(lengths))
+    avg_length = float(mean(lengths))
 
     unique_users = {p.get("author", "") for p in posts}
     diversity = len(unique_users) / float(post_count)
@@ -50,6 +49,6 @@ def anomaly_score(current_value: float, history: List[float]) -> float:
     """Return a simple z-score anomaly value."""
     if not history:
         return 0.0
-    mean = float(np.mean(history))
-    std = float(np.std(history)) or 1.0
-    return (current_value - mean) / std
+    avg = float(mean(history))
+    std = float(pstdev(history)) or 1.0
+    return (current_value - avg) / std

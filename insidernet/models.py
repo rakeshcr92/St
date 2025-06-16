@@ -1,43 +1,40 @@
-"""Model wrappers for InsiderNet v2."""
-
+"""Simplified model implementations without external dependencies."""
 from __future__ import annotations
 
-from typing import Tuple
-
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
+from typing import Iterable, List, Tuple
 
 
 class PriceDirectionModel:
-    """Simple classifier for price direction using RF or logistic regression."""
+    """Naive classifier using label proportion as probability."""
 
     def __init__(self, method: str = "rf") -> None:
-        if method == "logit":
-            self.model = LogisticRegression(max_iter=200)
+        self.prob = 0.5
+
+    def fit(self, X: Iterable[dict], y: Iterable[int]) -> None:
+        y_list = list(y)
+        if y_list:
+            self.prob = sum(y_list) / float(len(y_list))
         else:
-            self.model = RandomForestClassifier(n_estimators=200, random_state=42)
+            self.prob = 0.5
 
-    def fit(self, X: pd.DataFrame, y: pd.Series) -> None:
-        self.model.fit(X, y)
+    def predict(self, X: Iterable[dict]) -> List[int]:
+        thresh = 0.5
+        return [1 if self.prob >= thresh else 0 for _ in X]
 
-    def predict(self, X: pd.DataFrame) -> pd.Series:
-        return pd.Series(self.model.predict(X), index=X.index)
-
-    def predict_proba(self, X: pd.DataFrame) -> pd.Series:
-        if hasattr(self.model, "predict_proba"):
-            return pd.Series(self.model.predict_proba(X)[:, 1], index=X.index)
-        preds = self.model.predict(X)
-        return pd.Series(preds, index=X.index)
+    def predict_proba(self, X: Iterable[dict]) -> List[float]:
+        return [self.prob for _ in X]
 
 
 def train_test_data(
-    data: pd.DataFrame, label_column: str, test_size: float = 0.2
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
-    X = data.drop(columns=[label_column])
-    y = data[label_column]
-    stratify = y if y.nunique() > 1 else None
-    return train_test_split(
-        X, y, test_size=test_size, random_state=42, stratify=stratify
-    )
+    data: List[dict], label_column: str, test_size: float = 0.2
+) -> Tuple[List[dict], List[dict], List[int], List[int]]:
+    """Split list of dicts into train/test sets."""
+    data_list = list(data)
+    split = int(len(data_list) * (1 - test_size))
+    train = data_list[:split]
+    test = data_list[split:]
+    X_train = [{k: row[k] for k in row if k != label_column} for row in train]
+    y_train = [row[label_column] for row in train]
+    X_test = [{k: row[k] for k in row if k != label_column} for row in test]
+    y_test = [row[label_column] for row in test]
+    return X_train, X_test, y_train, y_test
