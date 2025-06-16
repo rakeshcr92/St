@@ -17,7 +17,9 @@ This repository now fetches live data. The `insidernet` package includes:
 - simple scikit-learn models
 - a pipeline script that trains on freshly downloaded posts
 
-Run the pipeline with your API credentials exported as environment variables:
+Run the pipeline with your API credentials. The application automatically loads
+variables from a `.env` file if present. Copy `/.env.example` to `.env` and
+fill in your keys, or export them manually as environment variables:
 
 ```bash
 export REDDIT_CLIENT_ID=...             # required
@@ -48,6 +50,6 @@ Install dependencies before running the pipeline or tests:
 pip install -r requirements.txt
 ```
 
-The demo relies on optional packages such as pandas and numpy.
+The demo relies on optional packages such as pandas, numpy and python-dotenv.
 
 

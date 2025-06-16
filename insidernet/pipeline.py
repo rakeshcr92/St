@@ -5,6 +5,13 @@ from __future__ import annotations
 import os
 import pandas as pd
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except Exception:
+    # `python-dotenv` is optional; ignore if not available
+    pass
+
 from .datasources import (
     RedditClient,
     TwitterClient,
