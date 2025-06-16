@@ -52,6 +52,8 @@ class PriceDirectionModel:
         # fall back to naive model when data is missing or only a single class
         if self.method == "naive" or not X or len(set(y_list)) < 2:
             self.prob = sum(y_list) / float(len(y_list)) if y_list else 0.5
+            self.method = "naive"
+            self.model = None
             return
 
         X_mat = self._to_matrix(X)
