@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>InsiderNet Demo</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 0; background:#fafafa; }
+      header { background:#111; color:#fff; padding:1em 2em; }
+      h1 { margin:0; }
+      main { padding:2em; }
+      table { border-collapse: collapse; width: 100%; margin-bottom: 2em; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+      th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+      th { background-color: #eee; }
+      .up { color: green; font-weight:bold; }
+      .down { color: red; font-weight:bold; }
+    </style>
+  </head>
+  <body>
+    <header><h1>InsiderNet Predictions</h1></header>
+    <main>
+    <table>
+      <tr>
+        <th>Ticker</th>
+        <th>Direction</th>
+        <th>Confidence</th>
+        <th>Anomaly</th>
+        <th>Volatility</th>
+        <th>Actual</th>
+      </tr>
+      {% for row in rows %}
+      <tr>
+        <td>{{ row.ticker }}</td>
+        <td><span class="{{ 'up' if row.direction == '\u2B06' else 'down' }}">{{ row.direction }}</span></td>
+        <td>{{ '%.2f'|format(row.confidence) }}</td>
+        <td>{{ '%.2f'|format(row.anomaly) }}</td>
+        <td>{{ '%.2f'|format(row.volatility) }}</td>
+        <td>{{ row.actual }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+
+    <h2>Past Predictions</h2>
+    <table>
+      <tr>
+        <th>Timestamp</th>
+        <th>Ticker</th>
+        <th>Direction</th>
+        <th>Confidence</th>
+        <th>Anomaly</th>
+        <th>Volatility</th>
+        <th>Actual</th>
+      </tr>
+      {% for row in history %}
+      <tr>
+        <td>{{ row.timestamp }}</td>
+        <td>{{ row.ticker }}</td>
+        <td><span class="{{ 'up' if row.direction == '\u2B06' else 'down' }}">{{ row.direction }}</span></td>
+        <td>{{ '%.2f'|format(row.confidence) }}</td>
+        <td>{{ '%.2f'|format(row.anomaly) }}</td>
+        <td>{{ '%.2f'|format(row.volatility) }}</td>
+        <td>{{ row.actual }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    </main>
+  </body>
+</html>

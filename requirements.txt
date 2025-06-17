@@ -1,0 +1,6 @@
+flask
+requests
+praw
+pytrends
+python-dotenv
+scikit-learn ; extra == "ml"
